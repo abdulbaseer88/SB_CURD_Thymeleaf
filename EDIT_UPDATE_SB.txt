@@ -1,0 +1,96 @@
+Edit and Update
+
+Edit  : Show Edit Page of Employee data on click Edit HyperLink
+Update: On click Update button, Employee data should be converted into Form
+          update in database.
+
+-----------Edit Operation-------------------------------------
+#1. Add Method in SL
+
+IEmployeeService:
+  public void updateEmployee(Employee emp);
+
+EmployeeServiceImpl
+  public void updateEmployee(Employee emp) {
+ 	repo.save(emp);
+  }
+
+#2. Controller
+
+@GetMapping("/edit")
+	public String showEdit(
+			@RequestParam Integer id,
+			Model model)
+	{
+		Employee e = service.getOneEmployee(id);
+		model.addAttribute("employee", e); //employee sent to UI
+		return "EmployeeEdit";
+	}
+
+	------------------
+	@PostMapping("/update")
+	public String updateEmp(
+			@ModelAttribute Employee employee,
+			Model model)
+	{
+		service.updateEmployee(employee);
+		/*
+		//send details to UI
+		model.addAttribute("message", "Employee '"+employee.getId()+"' Update");
+		model.addAttribute("list", service.getAllEmployees());
+		return "EmployeeData";
+		*/
+		return "redirect:all";
+	}
+
+
+#3. UI : EmpData.html  (Edit HyperLink)
+
+<a th:href="@{/employee/edit?id={data}(data=${ob.id})}">EDIT</a>
+
+#4. EmpEdit Page
+
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org/">
+<head>
+<meta charset="ISO-8859-1">
+<title>Insert title here</title>
+</head>
+<body>
+<h3>EMPLOYEE EDIT PAGE</h3>
+<form th:action="@{/employee/update}" method="POST" th:object="${employee}">
+<pre>
+ ID    : <input type="text" th:field="*{id}" readonly/>
+ NAME  : <input type="text" th:field="*{ename}" readonly/>
+ EMAIL : <input type="text" th:field="*{email}" readonly/>
+ GENDER: <input type="radio" th:field="*{gender}" value="Male" /> Male  <input type="radio" th:field="*{gender}" value="Female" /> Female
+ ADDRESS: <textarea th:field="*{eaddr}"></textarea>
+ PROJS : <select th:field="*{prjs}" multiple="multiple">
+ 			<option value="NIT">NIT</option>
+ 			<option value="VND">VND</option>
+ 			<option value="HTC">HTC</option>
+ 			<option value="XYZ">XYZ</option>
+ 		 </select>
+ SLOTS : 
+ 	<input type="checkbox" th:field="*{slots}" value="SHIFT-A"> SHIFT-A	
+ 	<input type="checkbox" th:field="*{slots}" value="SHIFT-B"> SHIFT-B	
+ 	<input type="checkbox" th:field="*{slots}" value="SHIFT-C"> SHIFT-C	
+ 	<input type="checkbox" th:field="*{slots}" value="SHIFT-D"> SHIFT-D
+ 	
+	<input type="submit" value="UPDATE EMPLOYEE" /> 		
+</pre>
+</form>
+</body>
+</html>
+
+---------------------------------------------------------------------------
+		Exception Handling : Spring Boot + Java 8 
+https://www.youtube.com/c/NareshIT/search?query=raghu+exception
+
+@ - URL Path
+ex:  @{/employee/save}
+$ - Read data from model
+  ${employee}, ${ob.id}
+* - to link input with variable
+  Here, every HTML Input must be linked with one variable, so that it can read/give
+  data.
