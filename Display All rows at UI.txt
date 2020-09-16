@@ -1,0 +1,96 @@
+#1. Here We need to use Repository method findAll():List<T>  [T=Model class]
+  internally SQL query looks like : select * from tab;
+
+#2. Call this method using Service Layer and Sort data if required by using Comparator.
+ 
+#3. Read data in Controller using service and send to UI with Model memory 
+ 
+#4. At UI use Thymeleaf Loop(forEach loop) and display data in HTML table format.
+------------------------------------------------------
+
+------------code------------------------------------------------
+#1. IEmployeeService
+
+  public List<Employee> getAllEmployees();
+
+#2. EmployeeServiceImpl
+
+  public List<Employee> getAllEmployees() {
+	List<Employee> list = repo.findAll();
+	// Interface ob = (method params) -> {method body;}
+	list.sort((e1,e2)->e1.getId()-e2.getId());
+	return list;
+ }
+
+
+#3. EmployeeController
+
+	public List<Employee> getAllEmployees() {
+		List<Employee> list = repo.findAll();
+		// Interface ob = (method params) -> {method body;}
+		//list.sort((e1,e2)->e1.getId()-e2.getId());
+		list.sort(new Comparator<Employee>() {
+			@Override
+			public int compare(Employee e1, Employee e2) {
+				return e1.getId()-e2.getId();
+				//return e1.getId().compareTo(e2.getId());
+			}
+		});
+		return list;
+	}
+
+#4. UI : EmployeeData.html
+
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org/">
+<head>
+<meta charset="ISO-8859-1">
+<title>Insert title here</title>
+</head>
+<body>
+<h3>EMPLOYEE DATA</h3>
+<table border="1">
+	<tr>
+		<td>ID</td>
+		<td>NAME</td>
+		<td>EMAIL</td>
+		<td>GENDER</td>
+		<td>ADDRESS</td>
+		<td>PROJECTS</td>
+		<td>SLOTS</td>
+	</tr>
+	<tr th:each="ob:${list}">
+		<td th:text="${ob.id}"></td>
+		<td th:text="${ob.ename}"></td>
+		<td th:text="${ob.email}"></td>
+		<td th:text="${ob.gender}"></td>
+		<td th:text="${ob.eaddr}"></td>
+		<td th:text="${ob.prjs}"></td>
+		<td th:text="${ob.slots}"></td>
+	</tr>
+</table>
+</body>
+</html>
+
+*) th:each="tempVariable:${collectionName}"  behaves as for-each loop
+*) Lambda Expression Syntax:
+    Interface ob = (methodParams) -> { Method Body};
+
+EX#1
+ interface Math {
+    int add(int a,int b);
+ }
+
+ Lambda Expression:
+   Math m = (a,b) -> { return a+b; }
+   Math m = (a,b) ->  a+b; 
+Ex#2:
+ interface Comparator<T> {
+     int compare(T o1, T o2);
+ }
+
+ Comparator<Employee> com =  ( e1, e2 ) -> { return e1.getId() - e2.getId();  } //ASC
+ Comparator<Employee> com =  ( e1, e2 ) ->  e1.getId() - e2.getId();
+
+ list.sort(cm);
+ list.sort((e1, e2) -> e1.getId() - e2.getId());
